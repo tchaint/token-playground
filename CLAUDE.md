@@ -35,14 +35,22 @@ src/
     playground/
       top-bar.tsx           # Logo, panel toggles, view mode, theme select, export
       status-bar.tsx        # Token count, contrast, gamut status
-  hooks/                    # Shared React hooks
+  hooks/
+    use-resolved-tokens.ts  # useResolvedTokens() — memoized CSS variable map
   lib/
     utils.ts                # cn() helper (clsx + tailwind-merge)
     types.ts                # ColorStep, ColorScale, SemanticTokenMap, ThemeSet, etc.
     constants.ts            # Shared constants
+    color/
+      converter.ts          # oklchToCSS, oklchToHex, oklchToHSL, cssToOklch, etc.
+      contrast.ts           # wcagContrastRatio, apcaContrast, contrastLevel
+      gamut.ts              # isInSRGB, clampToSRGB, countOutOfGamut
+      generator.ts          # generateScale, defaultGeneratorSettings
+      radix-presets.ts      # RADIX_SCALES_LIGHT/DARK, getRadixScale
     tokens/
-      bridge.ts             # Token resolution utilities
-      semantic-tokens.ts    # Semantic token definitions
+      bridge.ts             # CSS_BRIDGE_MAP, REVERSE_BRIDGE_MAP, generateBridgeCSS
+      semantic-tokens.ts    # SEMANTIC_TOKENS descriptors, SEMANTIC_TOKEN_MAP
+      resolve.ts            # resolveTokenRef, resolveAllTokens, resolveWithBridge
     stores/
       scale-store.ts        # useScaleStore — ColorScale[] with Immer + persist
       theme-store.ts        # useThemeStore — ThemeSet[], activeThemeId
@@ -86,9 +94,30 @@ All stores use `persist` + `immer` middleware:
 
 ## Data Model
 
-Colors are stored in **OKLCH** (`l`, `c`, `h`, `a`). Conversion to hex/hsl/rgb happens at render time via culori. Gamut checking (sRGB) also via culori.
+Colors are stored in **OKLCH** (`l`, `c`, `h`, `a`) — chosen for perceptual uniformity and clean chroma curves. Conversion to hex/hsl/rgb/CSS happens at render time via `src/lib/color/converter.ts`. Gamut checking (sRGB displayability) is via culori's `displayable()`; use `clampToSRGB()` to reduce chroma on out-of-gamut colors.
 
 `SemanticTokenMap` values are `TokenRef = { scaleId, stepIndex }` — an indirection that lets a single scale edit propagate across all themes referencing it.
+
+## Color Architecture
+
+### Scale Generation
+
+Scales are always 12 steps, index 1 (lightest) → 12 (darkest) — Radix convention, not 0-based. `generateScale()` in `src/lib/color/generator.ts` supports three chroma curves:
+- `gaussian` — chroma peaks at a configurable lightness mean/sigma
+- `linear` — constant chroma across all steps
+- `manual` — constant (reserved for direct step editing)
+
+### Radix Presets
+
+`src/lib/color/radix-presets.ts` exports 62 pre-converted `ColorScale` objects (31 scales × light/dark). IDs follow `radix-{name}-{mode}` (e.g., `radix-indigo-light`). Use `getRadixScale(name, mode)` as the primary accessor. Available scales: gray, mauve, slate, sage, olive, sand, gold, bronze, brown, yellow, amber, orange, tomato, red, ruby, crimson, pink, plum, purple, violet, iris, indigo, blue, cyan, teal, jade, green, grass, lime, mint, sky.
+
+### Token Resolution
+
+`resolveWithBridge()` in `src/lib/tokens/resolve.ts` resolves all `TokenRef` values to `oklch()` strings AND fans out to shadcn/ui CSS variable names via `CSS_BRIDGE_MAP`. Always use `resolveWithBridge` (not `resolveAllTokens`) when injecting tokens into the DOM — it produces both our names and shadcn's in one pass. The `useResolvedTokens()` hook in `src/hooks/` returns a memoized version backed by both Zustand stores.
+
+### Contrast
+
+`src/lib/color/contrast.ts` exports both WCAG (`wcagContrastRatio`) and APCA (`apcaContrast`) algorithms. `contrastLevel()` thresholds: ≥4.5 = `pass`, ≥3.0 = `large-only`, <3.0 = `fail`.
 
 ## Typography Conventions
 
