@@ -1,7 +1,7 @@
 'use client'
 
+import { useState } from 'react'
 import { PlusIcon } from 'lucide-react'
-import { toast } from 'sonner'
 import { generateScale, defaultGeneratorSettings } from '@/lib/color/generator'
 import type { ColorScale } from '@/lib/types'
 import { useScaleStore } from '@/lib/stores/scale-store'
@@ -11,10 +11,12 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { ScaleListItem } from './scale-list-item'
 import { ScaleGenerator } from './scale-generator'
 import { StepEditor } from './step-editor'
+import { RadixImportModal } from './radix-import-modal'
 
 export function ScaleEditor() {
   const { scales, addScale } = useScaleStore()
   const { selectedScaleId, setSelectedScaleId } = usePlaygroundStore()
+  const [importOpen, setImportOpen] = useState(false)
 
   const selectedScale = scales.find((s) => s.id === selectedScaleId) ?? null
 
@@ -32,6 +34,7 @@ export function ScaleEditor() {
   }
 
   return (
+    <>
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between border-b px-3 py-2.5">
@@ -41,7 +44,7 @@ export function ScaleEditor() {
             variant="ghost"
             size="sm"
             className="h-7 px-2 text-xs"
-            onClick={() => toast('Coming soon')}
+            onClick={() => setImportOpen(true)}
           >
             Import Radix
           </Button>
@@ -85,5 +88,8 @@ export function ScaleEditor() {
         </div>
       </ScrollArea>
     </div>
+
+    <RadixImportModal open={importOpen} onOpenChange={setImportOpen} />
+    </>
   )
 }
