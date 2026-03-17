@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ScaleListItem } from './scale-list-item'
 import { ScaleGenerator } from './scale-generator'
+import { StepEditor } from './step-editor'
 
 export function ScaleEditor() {
   const { scales, addScale } = useScaleStore()
@@ -55,13 +56,17 @@ export function ScaleEditor() {
         </div>
       </div>
 
-      {/* Generator — shown when a custom scale is selected */}
-      {selectedScale?.source === 'custom' && (
-        <ScaleGenerator key={selectedScale.id} scale={selectedScale} />
-      )}
+      {/* Everything below the header scrolls together */}
+      <ScrollArea className="flex-1 min-h-0">
+        {/* Generator — collapsible, shown for custom scales */}
+        {selectedScale?.source === 'custom' && (
+          <ScaleGenerator key={selectedScale.id} scale={selectedScale} />
+        )}
 
-      {/* Scale list */}
-      <ScrollArea className="flex-1">
+        {/* Step editor — shown when any scale is selected */}
+        {selectedScale && <StepEditor scale={selectedScale} />}
+
+        {/* Scale list */}
         <div className="flex flex-col gap-1 p-2">
           {scales.length === 0 ? (
             <div className="flex items-center justify-center py-12">

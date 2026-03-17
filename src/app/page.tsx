@@ -40,7 +40,7 @@ export default function Home() {
               exit={{ x: -320, opacity: 0 }}
               transition={PANEL_TRANSITION}
               className="max-xl:absolute max-xl:inset-y-0 max-xl:left-0 max-xl:z-10 max-xl:shadow-lg
-                         flex w-80 shrink-0 flex-col border-r bg-background"
+                         flex w-80 shrink-0 flex-col overflow-hidden border-r bg-background"
             >
               <ScaleEditor />
             </motion.div>
