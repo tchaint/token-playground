@@ -2,67 +2,78 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import type { ThemeSet, SemanticTokenMap, TokenRef } from '../types'
-import { DEFAULT_SCALE_ID } from './scale-store'
+import { DEFAULT_SCALE_ID, DEFAULT_BLUE_SCALE_ID, DEFAULT_RED_SCALE_ID } from './scale-store'
 
 // ─── Default Light Theme ──────────────────────────────────────────────────────
 //
-// Maps semantic tokens to gray scale steps following Radix conventions.
-// Step references use the default gray scale from scale-store.
+// Surfaces use the gray scale; accents use the blue scale; destructive uses red.
+// Step conventions follow Radix: 1–3 backgrounds, 4–5 hover/active, 6–8 borders,
+// 9–10 solid fills, 11–12 text.
 
-const ref = (stepIndex: number): TokenRef => ({ scaleId: DEFAULT_SCALE_ID, stepIndex })
+const gray = (stepIndex: number): TokenRef => ({ scaleId: DEFAULT_SCALE_ID, stepIndex })
+const blue = (stepIndex: number): TokenRef => ({ scaleId: DEFAULT_BLUE_SCALE_ID, stepIndex })
+const red  = (stepIndex: number): TokenRef => ({ scaleId: DEFAULT_RED_SCALE_ID, stepIndex })
 
 const DEFAULT_THEME_ID = 'default-light'
 
 const defaultTokens: SemanticTokenMap = {
   // Surfaces — ranked by depth (lighter = higher)
-  backgroundPrimary:   ref(1),
-  backgroundSecondary: ref(2),
-  backgroundTertiary:  ref(3),
-  backgroundPopover:   ref(1),
-  backgroundOverlay:   ref(12), // dark scrim — will override with alpha later
+  backgroundPrimary:   gray(1),
+  backgroundSecondary: gray(2),
+  backgroundTertiary:  gray(3),
+  backgroundPopover:   gray(1),
+  backgroundOverlay:   gray(12), // dark scrim — will override with alpha later
 
   // Foreground — emphasis hierarchy
-  foregroundPrimary:   ref(12),
-  foregroundSecondary: ref(11),
-  foregroundTertiary:  ref(10),
+  foregroundPrimary:   gray(12),
+  foregroundSecondary: gray(11),
+  foregroundTertiary:  gray(10),
 
   // Foreground — surface overrides
-  foregroundPopover:   ref(12),
-  foregroundOverlay:   ref(1),  // light text on dark scrim
+  foregroundPopover:   gray(12),
+  foregroundOverlay:   gray(1),  // light text on dark scrim
 
-  // Accent — all default to gray until user assigns a color scale
-  accentPrimary:              ref(9),
-  accentPrimaryForeground:    ref(1),
-  accentSecondary:            ref(3),
-  accentSecondaryForeground:  ref(12),
-  accentHover:                ref(4),
-  accentHoverForeground:      ref(12),
-  accentDestructive:          ref(9),
-  accentDestructiveForeground: ref(1),
-  accentWarning:              ref(9),
-  accentWarningForeground:    ref(1),
-  accentSuccess:              ref(9),
-  accentSuccessForeground:    ref(1),
-  accentInfo:                 ref(9),
-  accentInfoForeground:       ref(1),
+  // Accent — primary (blue)
+  accentPrimary:             blue(9),
+  accentPrimaryForeground:   gray(1),  // near-white on solid blue
 
-  // Borders — structural
-  borderPrimary:   ref(6),
-  borderSecondary: ref(5),
-  borderInput:     ref(7),
+  // Accent — secondary (subtle blue tint)
+  accentSecondary:            blue(3),
+  accentSecondaryForeground:  blue(12),
+
+  // Accent — hover state (slightly deeper blue tint)
+  accentHover:               blue(4),
+  accentHoverForeground:     blue(12),
+
+  // Accent — destructive (red)
+  accentDestructive:             red(9),
+  accentDestructiveForeground:   gray(1),
+
+  // Accent — semantic states (default to blue/red for now)
+  accentWarning:              blue(9),
+  accentWarningForeground:    gray(1),
+  accentSuccess:              blue(9),
+  accentSuccessForeground:    gray(1),
+  accentInfo:                 blue(9),
+  accentInfoForeground:       gray(1),
+
+  // Borders — structural (gray steps 6–7)
+  borderPrimary:   gray(7),
+  borderSecondary: gray(6),
+  borderInput:     gray(7),
 
   // Borders — semantic (all default to same neutral step)
-  borderDestructivePrimary:   ref(8),
-  borderDestructiveSecondary: ref(6),
-  borderWarningPrimary:       ref(8),
-  borderWarningSecondary:     ref(6),
-  borderSuccessPrimary:       ref(8),
-  borderSuccessSecondary:     ref(6),
-  borderInfoPrimary:          ref(8),
-  borderInfoSecondary:        ref(6),
+  borderDestructivePrimary:   gray(8),
+  borderDestructiveSecondary: gray(6),
+  borderWarningPrimary:       gray(8),
+  borderWarningSecondary:     gray(6),
+  borderSuccessPrimary:       gray(8),
+  borderSuccessSecondary:     gray(6),
+  borderInfoPrimary:          gray(8),
+  borderInfoSecondary:        gray(6),
 
-  // Focus
-  ring: ref(9),
+  // Focus ring — blue step 8 (visible but not overwhelming)
+  ring: blue(8),
 }
 
 const defaultLightTheme: ThemeSet = {

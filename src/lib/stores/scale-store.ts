@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import type { ColorScale, ColorStep } from '../types'
+import { generateScale } from '../color/generator'
 
 // ─── Default Gray Scale (Radix "slate" light — approximate OKLCH values) ─────
 
@@ -31,6 +32,46 @@ const defaultGrayScale: ColorScale = {
   updatedAt: 0,
 }
 
+// ─── Default Blue Scale (accent — generated with gaussian chroma curve) ───────
+
+const DEFAULT_BLUE_SCALE_ID = 'default-blue'
+
+const defaultBlueScale: ColorScale = {
+  id: DEFAULT_BLUE_SCALE_ID,
+  name: 'Blue',
+  source: 'custom',
+  steps: generateScale({
+    baseHue: 250,
+    baseChroma: 0.20,
+    lightnessRange: { min: 0.20, max: 0.97 },
+    chromaCurve: 'gaussian',
+    gaussianMean: 0.55,
+    gaussianSigma: 0.20,
+  }),
+  createdAt: 0,
+  updatedAt: 0,
+}
+
+// ─── Default Red Scale (destructive — generated with gaussian chroma curve) ──
+
+const DEFAULT_RED_SCALE_ID = 'default-red'
+
+const defaultRedScale: ColorScale = {
+  id: DEFAULT_RED_SCALE_ID,
+  name: 'Red',
+  source: 'custom',
+  steps: generateScale({
+    baseHue: 25,
+    baseChroma: 0.20,
+    lightnessRange: { min: 0.20, max: 0.97 },
+    chromaCurve: 'gaussian',
+    gaussianMean: 0.55,
+    gaussianSigma: 0.20,
+  }),
+  createdAt: 0,
+  updatedAt: 0,
+}
+
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 interface ScaleState {
@@ -49,7 +90,7 @@ interface ScaleActions {
 export const useScaleStore = create<ScaleState & ScaleActions>()(
   persist(
     immer((set, get) => ({
-      scales: [defaultGrayScale],
+      scales: [defaultGrayScale, defaultBlueScale, defaultRedScale],
 
       addScale(scale) {
         set((state) => {
@@ -116,4 +157,4 @@ export const useScaleStore = create<ScaleState & ScaleActions>()(
   )
 )
 
-export { DEFAULT_SCALE_ID }
+export { DEFAULT_SCALE_ID, DEFAULT_BLUE_SCALE_ID, DEFAULT_RED_SCALE_ID }
