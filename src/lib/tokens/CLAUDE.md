@@ -30,6 +30,8 @@ Ordered source-of-truth for all semantic token definitions.
 
 Token groups: `backgrounds`, `foreground-emphasis`, `foreground-surface`, `accent`, `borders-structural`, `borders-semantic`, `focus`.
 
+**Color-only system** — there are no typography, spacing, or shadow tokens. Font families live in `globals.css` as CSS custom properties; all other typography decisions are Tailwind utility classes applied directly in components.
+
 `contrastTargets` on foreground tokens lists which background token keys the foreground must pass 4.5:1 contrast against.
 
 ## ../hooks/use-resolved-tokens.ts
