@@ -28,13 +28,14 @@ src/
     page.tsx                # Three-panel layout with AnimatePresence
   components/
     ui/                     # shadcn/ui primitives (do not edit directly)
-    canvas/index.tsx        # ComponentCanvas (placeholder)
+    canvas/index.tsx        # ComponentCanvas — themed POC (buttons, surfaces, typography, Card)
     panels/
       scale-editor/index.tsx  # ScaleEditor panel (placeholder)
       theme-editor/index.tsx  # ThemeEditor panel (placeholder)
     playground/
       top-bar.tsx           # Logo, panel toggles, view mode, theme select, export
       status-bar.tsx        # Token count, contrast, gamut status
+      canvas-wrapper.tsx    # CanvasWrapper — injects resolved tokens as CSS vars + portal <style>
   hooks/
     use-resolved-tokens.ts  # useResolvedTokens() — memoized CSS variable map
   lib/
@@ -88,9 +89,21 @@ Keyboard shortcuts in `page.tsx`: `[` toggles left panel, `]` toggles right pane
 
 All stores use `persist` + `immer` middleware:
 
-- **`useScaleStore`** (`scale-store.ts`) — `scales: ColorScale[]`, default gray scale at id `'default-gray'`. Actions: `addScale`, `updateScale`, `updateStep`, `removeScale`, `duplicateScale`, `reorderScales`.
-- **`useThemeStore`** (`theme-store.ts`) — `themes: ThemeSet[]`, `activeThemeId`. Default light theme at id `'default-light'` references `DEFAULT_SCALE_ID`. Actions: `addTheme`, `updateTheme`, `setToken`, `removeTheme`, `duplicateTheme`, `setActiveTheme`.
+- **`useScaleStore`** (`scale-store.ts`) — `scales: ColorScale[]`. Three default scales: gray (`default-gray`, hand-crafted steps), blue (`default-blue`, hue 250, gaussian), red (`default-red`, hue 25, gaussian). Blue and red are generated at module load via `generateScale()`. Exports `DEFAULT_SCALE_ID`, `DEFAULT_BLUE_SCALE_ID`, `DEFAULT_RED_SCALE_ID`. Actions: `addScale`, `updateScale`, `updateStep`, `removeScale`, `duplicateScale`, `reorderScales`.
+- **`useThemeStore`** (`theme-store.ts`) — `themes: ThemeSet[]`, `activeThemeId`. Default theme id `'default-light'`: surfaces/foregrounds/borders → gray scale, accent/hover/ring → blue scale (step 9 solid, step 8 ring), destructive → red scale (step 9). Actions: `addTheme`, `updateTheme`, `setToken`, `removeTheme`, `duplicateTheme`, `setActiveTheme`.
 - **`usePlaygroundStore`** (`playground-store.ts`) — `leftPanelOpen`, `rightPanelOpen`, `canvasViewMode: CanvasViewMode`, `activeComponentGroup`, `selectedScaleId`. All persisted.
+
+## Canvas Theming
+
+`CanvasWrapper` (`src/components/playground/canvas-wrapper.tsx`) is the live theming boundary:
+
+1. Calls `useResolvedTokens()` to get all resolved `oklch()` values as a flat `Record<cssVar, string>`.
+2. Applies that record as inline `style` on a `<div class="playground-theme [dark]">` — tokens are available on first render without flash.
+3. On every token change, updates a `<style data-playground-theme>` tag injected into `<head>` that writes the same variables to:
+   - `.playground-theme` (the wrapper itself)
+   - `[data-radix-popper-content-wrapper]`, `[role="dialog"]`, `.sonner-toaster`, `[data-vaul-drawer-wrapper]` (portals that render outside the wrapper div)
+
+**localStorage note**: Zustand `persist` restores the last saved state on load. After changing default store initialization, clear localStorage (DevTools → Application → Storage → Clear site data) to see the new defaults.
 
 ## Data Model
 
