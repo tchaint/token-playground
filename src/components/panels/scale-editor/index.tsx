@@ -9,10 +9,13 @@ import { usePlaygroundStore } from '@/lib/stores/playground-store'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ScaleListItem } from './scale-list-item'
+import { ScaleGenerator } from './scale-generator'
 
 export function ScaleEditor() {
   const { scales, addScale } = useScaleStore()
   const { selectedScaleId, setSelectedScaleId } = usePlaygroundStore()
+
+  const selectedScale = scales.find((s) => s.id === selectedScaleId) ?? null
 
   function handleNewScale() {
     const scale: ColorScale = {
@@ -51,6 +54,11 @@ export function ScaleEditor() {
           </Button>
         </div>
       </div>
+
+      {/* Generator — shown when a custom scale is selected */}
+      {selectedScale?.source === 'custom' && (
+        <ScaleGenerator key={selectedScale.id} scale={selectedScale} />
+      )}
 
       {/* Scale list */}
       <ScrollArea className="flex-1">
