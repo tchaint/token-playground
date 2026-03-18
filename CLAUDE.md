@@ -28,7 +28,17 @@ src/
     page.tsx                # Three-panel layout with AnimatePresence
   components/
     ui/                     # shadcn/ui primitives (do not edit directly)
-    canvas/index.tsx        # ComponentCanvas — themed POC (buttons, surfaces, typography, Card)
+    canvas/
+      index.tsx             # ComponentCanvas — 5 group sections + SurfaceNestingDemo
+      specimen.tsx          # Specimen — named wrapper for each component demo
+      section-nav.tsx       # SectionNav — sticky grouped-mode nav (z-20; must beat day-picker stacking)
+      surface-nesting-demo.tsx
+      groups/
+        inputs-forms.tsx    # InputsFormsGroup — 20 components
+        data-display.tsx    # DataDisplayGroup — 11 components
+        feedback.tsx        # FeedbackGroup — 9 components
+        navigation-group.tsx # NavigationGroup — 13 components
+        layout-group.tsx    # LayoutGroup — 4 components
     panels/
       scale-editor/index.tsx  # ScaleEditor panel (placeholder)
       theme-editor/index.tsx  # ThemeEditor panel (placeholder)
@@ -73,6 +83,9 @@ This is the most important gotcha. The `src/components/ui/` components wrap `@ba
 - **`render` prop instead of `asChild`**: Use `<DropdownMenuTrigger render={<Button>...</Button>} />` — `asChild` does not exist on base-ui components.
 - **Select `onValueChange` receives `string | null`**: Guard with `(val) => val && handler(val)` to satisfy TypeScript.
 - **ToggleGroup**: Each `ToggleGroupItem` is controlled via `pressed` / `onPressedChange` props — there is no `value` prop on the group for single-select.
+- **`Accordion` `defaultValue` takes `string[]`**: Pass an array — `<Accordion defaultValue={['item-1']}>`. A plain string silently fails to open the item.
+- **`react-resizable-panels` uses `orientation` not `direction`**: `<ResizablePanelGroup orientation="horizontal">` — the `direction` prop no longer exists in v2. TypeScript error cites `HTMLDivElement` which is misleading.
+- **`Sidebar` from `sidebar.tsx` is layout-only**: It uses `position: fixed; inset-y: 0` and requires `SidebarProvider` context — not suitable for inline specimens. For icon-only sidebar demos, use a plain `<div>` with `bg-sidebar`, `bg-sidebar-accent`, `text-sidebar-foreground`, `text-sidebar-accent-foreground` CSS variables directly.
 
 ## Layout Architecture (`src/app/page.tsx`)
 
@@ -101,7 +114,9 @@ All stores use `persist` + `immer` middleware:
 2. Applies that record as inline `style` on a `<div class="playground-theme [dark]">` — tokens are available on first render without flash.
 3. On every token change, updates a `<style data-playground-theme>` tag injected into `<head>` that writes the same variables to:
    - `.playground-theme` (the wrapper itself)
-   - `[data-radix-popper-content-wrapper]`, `[role="dialog"]`, `.sonner-toaster`, `[data-vaul-drawer-wrapper]` (portals that render outside the wrapper div)
+   - `[data-radix-popper-content-wrapper]`, `[role="dialog"]`, `.sonner-toaster`, `[data-vaul-drawer-wrapper]` (Radix/Vaul portals)
+   - `[data-slot="tooltip-content"]`, `[data-slot="dropdown-menu-content"]`, `[data-slot="context-menu-content"]`, `[data-slot="hover-card-content"]`, `[data-slot="popover-content"]` (base-ui portals)
+   - **NavigationMenu** portals have no `data-slot` on their `Popup` — they cannot be targeted and fall back to document-level CSS variables.
 
 **localStorage note**: Zustand `persist` restores the last saved state on load. After changing default store initialization, clear localStorage (DevTools → Application → Storage → Clear site data) to see the new defaults.
 
