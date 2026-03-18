@@ -67,13 +67,13 @@ export function ThemeEditor() {
       </div>
 
       {/* Theme tabs + add button */}
-      <div className="shrink-0 flex items-start gap-1 px-2 pt-2.5 pb-1">
+      <div className="shrink-0 flex items-center gap-1 px-2 pt-2.5 pb-2">
         <Tabs
           value={activeThemeId}
           onValueChange={(val) => val && setActiveTheme(val)}
-          className="flex-1 min-w-0"
+          className="flex-1 min-w-0 overflow-x-auto pb-2 -mb-2"
         >
-          <TabsList variant="line" className="h-auto w-full flex-wrap justify-start gap-0.5">
+          <TabsList variant="line" className="w-max justify-start gap-0.5 [&_[data-slot=tabs-trigger]]:flex-none">
             {themes.map((theme) => (
               <TabsTrigger key={theme.id} value={theme.id}>
                 {theme.name}
@@ -86,7 +86,7 @@ export function ThemeEditor() {
           variant="ghost"
           onClick={handleAddTheme}
           title="New theme"
-          className="mt-0.5 shrink-0"
+          className="shrink-0"
         >
           <Plus />
         </Button>
