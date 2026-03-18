@@ -12,6 +12,12 @@ const PORTAL_SELECTORS = [
   '[role="dialog"]',
   '.sonner-toaster',
   '[data-vaul-drawer-wrapper]',
+  // base-ui portals — each popup type has a data-slot on the Popup element
+  '[data-slot="tooltip-content"]',
+  '[data-slot="dropdown-menu-content"]',
+  '[data-slot="context-menu-content"]',
+  '[data-slot="hover-card-content"]',
+  '[data-slot="popover-content"]',
 ]
 
 interface CanvasWrapperProps {

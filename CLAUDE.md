@@ -134,6 +134,8 @@ Scales are always 12 steps, index 1 (lightest) → 12 (darkest) — Radix conven
 
 ## Typography Conventions
 
+Typography is **not tokenized** — there are no font-size, font-weight, line-height, or letter-spacing tokens in the semantic token pipeline. Font families are registered as CSS custom properties in `globals.css` (`--font-sans`, `--font-mono`) and applied via `html { @apply font-sans; }`. All other typography decisions are expressed as Tailwind utility classes directly in components:
+
 - **Headings/short text** — `text-balance`
 - **Body/descriptions** — `text-pretty`
 - **Root layout** — `antialiased` on `<html>`
@@ -145,3 +147,13 @@ Scales are always 12 steps, index 1 (lightest) → 12 (darkest) — Radix conven
 - Prefer CSS variables for tokens — they live in `globals.css`
 - State slices go in `src/lib/stores/` using Zustand + Immer
 - Don't modify `src/components/ui/` files — extend by composition
+
+### Flex scroll pattern
+
+Any scrollable panel or modal must follow this three-part pattern or the `ScrollArea` will expand to its natural height instead of scrolling:
+
+1. **Outer container** — `flex flex-col max-h-[X] overflow-hidden` (all three are required; `overflow-hidden` is the one most often forgotten)
+2. **Fixed regions** — `shrink-0` on headers, footers, toolbars
+3. **Scroll region** — `<ScrollArea className="flex-1 min-h-0">`
+
+Without `overflow-hidden` on the outer container, `max-height` does not clip flex children and `flex-1 min-h-0` has no bounded height to work within.
