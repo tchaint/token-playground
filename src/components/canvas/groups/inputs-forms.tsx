@@ -512,66 +512,43 @@ function ToggleSpecimen() {
 
 function ToggleGroupSpecimen() {
   const [align, setAlign] = useState('left')
-  const [formats, setFormats] = useState(new Set(['bold']))
-
-  const toggleFormat = (key: string, pressed: boolean) => {
-    setFormats((prev) => {
-      const next = new Set(prev)
-      pressed ? next.add(key) : next.delete(key)
-      return next
-    })
-  }
+  const [formats, setFormats] = useState<string[]>(['bold'])
 
   return (
     <div className="flex flex-wrap items-start gap-8">
       <div className="space-y-2">
         <p className="text-xs text-muted-foreground">Single select</p>
-        <ToggleGroup variant="outline">
-          <ToggleGroupItem
-            pressed={align === 'left'}
-            onPressedChange={(p) => p && setAlign('left')}
-            aria-label="Align left"
-          >
+        <ToggleGroup
+          variant="outline"
+          value={[align]}
+          onValueChange={(v) => { if (v.length > 0) setAlign(v[0]) }}
+        >
+          <ToggleGroupItem value="left" aria-label="Align left">
             <AlignLeftIcon />
           </ToggleGroupItem>
-          <ToggleGroupItem
-            pressed={align === 'center'}
-            onPressedChange={(p) => p && setAlign('center')}
-            aria-label="Align center"
-          >
+          <ToggleGroupItem value="center" aria-label="Align center">
             <AlignCenterIcon />
           </ToggleGroupItem>
-          <ToggleGroupItem
-            pressed={align === 'right'}
-            onPressedChange={(p) => p && setAlign('right')}
-            aria-label="Align right"
-          >
+          <ToggleGroupItem value="right" aria-label="Align right">
             <AlignRightIcon />
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
       <div className="space-y-2">
         <p className="text-xs text-muted-foreground">Multiple select</p>
-        <ToggleGroup variant="outline">
-          <ToggleGroupItem
-            pressed={formats.has('bold')}
-            onPressedChange={(p) => toggleFormat('bold', p)}
-            aria-label="Bold"
-          >
+        <ToggleGroup
+          variant="outline"
+          multiple
+          value={formats}
+          onValueChange={(v) => setFormats(v)}
+        >
+          <ToggleGroupItem value="bold" aria-label="Bold">
             <BoldIcon />
           </ToggleGroupItem>
-          <ToggleGroupItem
-            pressed={formats.has('italic')}
-            onPressedChange={(p) => toggleFormat('italic', p)}
-            aria-label="Italic"
-          >
+          <ToggleGroupItem value="italic" aria-label="Italic">
             <ItalicIcon />
           </ToggleGroupItem>
-          <ToggleGroupItem
-            pressed={formats.has('underline')}
-            onPressedChange={(p) => toggleFormat('underline', p)}
-            aria-label="Underline"
-          >
+          <ToggleGroupItem value="underline" aria-label="Underline">
             <UnderlineIcon />
           </ToggleGroupItem>
         </ToggleGroup>
