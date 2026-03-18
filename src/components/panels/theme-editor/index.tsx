@@ -19,6 +19,8 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog'
 import { TokenGroup } from './token-group'
+import { QuickFill } from './quick-fill'
+import { ContrastMatrix } from './contrast-matrix'
 import type { ThemeSet } from '@/lib/types'
 
 export function ThemeEditor() {
@@ -121,6 +123,9 @@ export function ThemeEditor() {
         </RadioGroup>
       </div>
 
+      {/* Quick-fill helpers */}
+      <QuickFill themeId={activeThemeId} />
+
       {/* Token groups — scrollable */}
       <ScrollArea className="flex-1 min-h-0">
         <div className="py-1">
@@ -132,6 +137,7 @@ export function ThemeEditor() {
               themeId={activeThemeId}
             />
           ))}
+          <ContrastMatrix />
         </div>
       </ScrollArea>
 
