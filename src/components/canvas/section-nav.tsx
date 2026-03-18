@@ -45,7 +45,7 @@ export function SectionNav() {
   }
 
   return (
-    <div className="sticky top-0 z-10 flex gap-1 px-4 py-2 bg-background/90 backdrop-blur-sm border-b border-border/60">
+    <div className="sticky top-0 z-20 flex gap-1 px-4 py-2 bg-background/90 backdrop-blur-sm border-b border-border/60">
       {COMPONENT_GROUPS.map(({ id, label }) => (
         <button
           key={id}
