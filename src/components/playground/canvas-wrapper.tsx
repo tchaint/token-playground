@@ -12,6 +12,8 @@ const PORTAL_SELECTORS = [
   '[role="dialog"]',
   '.sonner-toaster',
   '[data-vaul-drawer-wrapper]',
+  // base-ui tooltip portals render the Popup outside the wrapper tree
+  '[data-slot="tooltip-content"]',
 ]
 
 interface CanvasWrapperProps {
