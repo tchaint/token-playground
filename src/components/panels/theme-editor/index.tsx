@@ -27,6 +27,8 @@ export function ThemeEditor() {
   const { themes, activeThemeId, setActiveTheme, addTheme, duplicateTheme, removeTheme, updateTheme } =
     useThemeStore()
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editValue, setEditValue] = useState('')
 
   const activeTheme = themes.find((t) => t.id === activeThemeId)
 
@@ -59,6 +61,23 @@ export function ThemeEditor() {
     updateTheme(activeThemeId, { mode: mode as ThemeSet['mode'] })
   }
 
+  function startEdit(id: string, name: string) {
+    setEditingId(id)
+    setEditValue(name)
+  }
+
+  function commitEdit() {
+    if (!editingId) return
+    const trimmed = editValue.trim()
+    if (trimmed) updateTheme(editingId, { name: trimmed })
+    setEditingId(null)
+  }
+
+  function handleEditKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') { e.preventDefault(); commitEdit() }
+    else if (e.key === 'Escape') { setEditingId(null) }
+  }
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
@@ -75,8 +94,25 @@ export function ThemeEditor() {
         >
           <TabsList variant="line" className="w-max justify-start gap-0.5 [&_[data-slot=tabs-trigger]]:flex-none">
             {themes.map((theme) => (
-              <TabsTrigger key={theme.id} value={theme.id}>
-                {theme.name}
+              <TabsTrigger
+                key={theme.id}
+                value={theme.id}
+                className="select-none"
+                onDoubleClick={() => startEdit(theme.id, theme.name)}
+              >
+                {editingId === theme.id ? (
+                  <input
+                    autoFocus
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onBlur={commitEdit}
+                    onKeyDown={handleEditKeyDown}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-transparent text-sm font-medium outline-none min-w-[3ch] [field-sizing:content]"
+                  />
+                ) : (
+                  theme.name
+                )}
               </TabsTrigger>
             ))}
           </TabsList>
