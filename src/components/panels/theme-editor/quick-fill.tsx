@@ -123,11 +123,38 @@ export function QuickFill({ themeId }: QuickFillProps) {
   function invertForDark() {
     if (!theme) return
 
+    // Tokens with Radix-semantic step roles that must not be naively inverted:
+    // • Solid accent fills: step 9 is "solid background" in both light and dark
+    //   Radix scales — inverting turns it into step 4 (a hover tint).
+    // • On-solid foregrounds: light text (step 1) on step-9 saturated fill
+    //   works in both modes; inverting produces dark text on a light tint.
+    // • Focus ring: step 8 ("strong border") works in both modes.
+    const PRESERVE_STEP = new Set([
+      'accentPrimary',
+      'accentPrimaryForeground',
+      'accentDestructive',
+      'accentDestructiveForeground',
+      'accentWarning',
+      'accentWarningForeground',
+      'accentSuccess',
+      'accentSuccessForeground',
+      'accentInfo',
+      'accentInfoForeground',
+      'ring',
+    ])
+
+    // borderInput is used by components as `dark:bg-input/30` — a background
+    // tint at 30% opacity. Inverting step 7 → step 6 (~60% lightness) makes
+    // inputs appear too elevated on a near-black canvas. Mapping to step 1
+    // (near-white) at 30% opacity creates a very subtle, correct-feeling tint.
+    const FORCE_LIGHTEST = new Set(['borderInput'])
+
     const invertedTokens = Object.fromEntries(
-      Object.entries(theme.tokens).map(([key, ref]) => [
-        key,
-        { scaleId: ref.scaleId, stepIndex: 13 - ref.stepIndex },
-      ]),
+      Object.entries(theme.tokens).map(([key, ref]) => {
+        if (PRESERVE_STEP.has(key)) return [key, ref]
+        if (FORCE_LIGHTEST.has(key)) return [key, { scaleId: ref.scaleId, stepIndex: 1 }]
+        return [key, { scaleId: ref.scaleId, stepIndex: 13 - ref.stepIndex }]
+      }),
     ) as unknown as SemanticTokenMap
 
     const darkTheme = {

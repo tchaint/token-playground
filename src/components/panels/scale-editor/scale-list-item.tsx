@@ -131,20 +131,20 @@ export function ScaleListItem({ scale, isSelected, onSelect }: ScaleListItemProp
               <MoreHorizontalIcon className="size-3.5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-36">
-              <DropdownMenuItem onSelect={() => duplicateScale(scale.id)}>
+              <DropdownMenuItem onClick={() => duplicateScale(scale.id)}>
                 Duplicate
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setIsRenaming(true)}>
+              <DropdownMenuItem onClick={() => setIsRenaming(true)}>
                 Rename
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => toast('Coming soon')}>
+              <DropdownMenuItem onClick={() => toast('Coming soon')}>
                 Export
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"
-                onSelect={() => setDeleteOpen(true)}
+                onClick={() => setDeleteOpen(true)}
               >
                 Delete
               </DropdownMenuItem>
